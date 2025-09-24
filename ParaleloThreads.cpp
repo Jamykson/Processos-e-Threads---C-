@@ -1,0 +1,1 @@
+//Para a multiplicação com threads.
