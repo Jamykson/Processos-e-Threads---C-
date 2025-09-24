@@ -1,0 +1,4 @@
+2 2
+Resultado[1][0] = 22
+Resultado[1][1] = 13
+Tempo da thread 1: 0.00018 ms

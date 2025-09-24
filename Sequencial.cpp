@@ -1,22 +1,20 @@
-#include <iostream> //Para a multiplicação sequencial.
-#include <fstream> 
-#include <vector>
-#include <chrono> // para medir o tempo
+#include <iostream> 
+#include <fstream>  // para trabalhar com arquivos;
+#include <vector>   // para armazenar matrizes;
+#include <chrono>   // para medir o tempo;
 
 using namespace std;
 using namespace std::chrono;
 
-using namespace std;
-
 // Função para ler uma matriz a partir de arquivo;
 vector<vector<int>> lerMatriz_(const string& nomeDoArquivo_, int &n_, int &m_) {
-    // ... (nenhuma mudança nesta função)
     ifstream arquivo_(nomeDoArquivo_);
     if (!arquivo_.is_open()) {
-        cerr << "Erro ao abrir o arquivo " << nomeDoArquivo_ << endl;
+        cerr << "Erro ao abrir o arquivo " << nomeDoArquivo_ << endl; // neste caso tratamos erro de abertura;
         exit(1);
     }
-    arquivo_ >> n_ >> m_;
+
+    arquivo_ >> n_ >> m_; // isso faz com que saibamos quantas linhas e colunas ler;
     vector<vector<int>> matriz_(n_, vector<int>(m_));
     for (int i_ = 0; i_ < n_; i_++) {
         for (int j_ = 0; j_ < m_; j_++) {
@@ -27,10 +25,9 @@ vector<vector<int>> lerMatriz_(const string& nomeDoArquivo_, int &n_, int &m_) {
     return matriz_;
 }
 
-// Função para multiplicar duas matrizes 
+// Função para multiplicar duas matrizes;
 vector<vector<int>> multiplicarMatrizes_(const vector<vector<int>>& PrimeiraMatriz_, const vector<vector<int>>& SegundaMatriz_, int n1_, int m1_, int m2_) {
-    // ... (nenhuma mudança nesta função)
-    vector<vector<int>> resultado_(n1_, vector<int>(m2_, 0));
+    vector<vector<int>> resultado_(n1_, vector<int>(m2_, 0)); 
     for (int i_ = 0; i_ < n1_; i_++) {
         for (int j_ = 0; j_ < m2_; j_++) {
             for (int k_ = 0; k_ < m1_; k_++) {
@@ -41,14 +38,14 @@ vector<vector<int>> multiplicarMatrizes_(const vector<vector<int>>& PrimeiraMatr
     return resultado_; 
 }
 
-// Salvar a matriz resultado em arquivo;
+// Função para salvar a matriz resultado em arquivo;
 void salvarEmArquivo_(const string& tituloDoArquivo_, const vector<vector<int>>& matriz_, int n_, int m_, double tempo_) {
-    // ... (nenhuma mudança nesta função)
     ofstream arquivo_(tituloDoArquivo_);
     if (!arquivo_.is_open()) {
         cerr << "Houve um erro ao criar o arquivo " << tituloDoArquivo_ <<"."<< endl;
         exit(1);
     }
+
     arquivo_ << n_ << " " << m_ << endl;
     for (int i_ = 0; i_ < n_; i_++) {
         for (int j_ = 0; j_ < m_; j_++) {
@@ -56,7 +53,7 @@ void salvarEmArquivo_(const string& tituloDoArquivo_, const vector<vector<int>>&
         }
         arquivo_ << endl;
     }
-    arquivo_ << "Tempo: " << tempo_  << " ms" << endl;
+    arquivo_ << "Tempo: " << tempo_  << " ms (" << tempo_ / 1000 << " s)" << endl; // neste caso mostramos em ms e s;
     arquivo_.close();
 }
 
@@ -75,18 +72,17 @@ int main(int argc_, char* argv_[]) {
         return 1;
     }
 
-    auto inicio_ = high_resolution_clock::now();
+    auto inicio_ = high_resolution_clock::now(); // neste caso marcamos o início;
 
     vector<vector<int>> resultado_ = multiplicarMatrizes_(M1_, M2_, n1_, m1_, m2_);
 
-    auto fim_ = high_resolution_clock::now();
+    auto fim_ = high_resolution_clock::now(); // neste caso marcamos o fim;
     duration<double, milli> duracao_ = fim_ - inicio_;
 
-    // ===== CORREÇÃO 1 DE 2: O nome da função aqui foi corrigido. =====
-    salvarEmArquivo_("ResultadoSequencial.txt", resultado_, n1_, m2_, duracao_.count());
+    salvarEmArquivo_("MultiplicacaoSequencial.txt", resultado_, n1_, m2_, duracao_.count());
 
-    cout << "Multiplicacao sequencial concluida. Resultado salvo em ResultadoSequencial.txt" << endl;
+    cout << "Multiplicacao sequencial concluida. Resultado salvo em MultiplicacaoSequencial.txt" << endl;
+    cout << "Tempo gasto: " << duracao_.count() << " ms (" << duracao_.count()/1000 << " s)" << endl;
 
     return 0;
 }
-
