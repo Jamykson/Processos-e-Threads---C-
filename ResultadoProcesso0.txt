@@ -1,4 +1,4 @@
 2 2
 Resultado[0][0] = 83
 Resultado[0][1] = 64
-Tempo da thread 0: 0.000391 ms
+Tempo do processo 0: 0.023674 ms
