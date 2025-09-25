@@ -8,18 +8,18 @@ using namespace std;
 using namespace std::chrono;
 
 // Função para ler uma matriz a partir de um arquivo;
-vector<vector<int>> lerMatriz_(const string& nomeDoArquivo_, int &n_, int &m_) {
+vector<vector<int>> lerMatriz_(const string& nomeDoArquivo_, int &linha_, int &coluna_) {
     ifstream arquivo_(nomeDoArquivo_); // neste caso abrimos o arquivo em modo de leitura;
     if (!arquivo_.is_open()) {
         cerr << "Erro ao abrir o arquivo " << nomeDoArquivo_ << endl; // neste caso tratamos erro de abertura;
         exit(1);
     }
 
-    arquivo_ >> n_ >> m_; // isso faz com que saibamos quantas linhas e colunas a matriz possui;
-    vector<vector<int>> matriz_(n_, vector<int>(m_)); // neste caso criamos a matriz em memória já com o tamanho certo;
+    arquivo_ >> linha_ >> coluna_; // isso faz com que saibamos quantas linhas e colunas a matriz possui;
+    vector<vector<int>> matriz_(linha_, vector<int>(coluna_)); // neste caso criamos a matriz em memória já com o tamanho certo;
 
-    for (int i_ = 0; i_ < n_; i_++) {
-        for (int j_ = 0; j_ < m_; j_++) {
+    for (int i_ = 0; i_ < linha_; i_++) {
+        for (int j_ = 0; j_ < coluna_; j_++) {
             arquivo_ >> matriz_[i_][j_]; // isso faz com que cada valor seja lido e armazenado na posição correta;
         }
     }
@@ -31,16 +31,16 @@ vector<vector<int>> lerMatriz_(const string& nomeDoArquivo_, int &n_, int &m_) {
 // Função que cada thread executa para calcular parte da matriz resultado;
 void calcularParte_(const vector<vector<int>>& M1_, const vector<vector<int>>& M2_, 
                     vector<vector<int>>& resultado_, 
-                    int n1_, int m1_, int m2_, 
+                    int linha1_, int coluna1_, int coluna2_, 
                     int inicio_, int fim_, int idThread_) {
     auto inicioTempo_ = high_resolution_clock::now(); // neste caso marcamos o início do tempo de execução da thread;
 
     for (int idx_ = inicio_; idx_ < fim_; idx_++) {
-        int i_ = idx_ / m2_; // isso faz com que saibamos em qual linha da matriz resultado estamos;
-        int j_ = idx_ % m2_; // isso faz com que saibamos em qual coluna da matriz resultado estamos;
+        int i_ = idx_ / coluna2_; // isso faz com que saibamos em qual linha da matriz resultado estamos;
+        int j_ = idx_ % coluna2_; // isso faz com que saibamos em qual coluna da matriz resultado estamos;
 
         int soma_ = 0;
-        for (int k_ = 0; k_ < m1_; k_++) {
+        for (int k_ = 0; k_ < coluna1_; k_++) {
             soma_ += M1_[i_][k_] * M2_[k_][j_]; // neste caso calculamos o produto escalar da linha de M1 com a coluna de M2;
         }
         resultado_[i_][j_] = soma_; // isso faz com que armazenemos o valor calculado na posição correta da matriz resultado;
@@ -57,10 +57,10 @@ void calcularParte_(const vector<vector<int>>& M1_, const vector<vector<int>>& M
         exit(1);
     }
 
-    arquivo_ << n1_ << " " << m2_ << endl; // isso faz com que registremos as dimensões da matriz resultado;
+    arquivo_ << linha1_ << " " << coluna2_ << endl; // isso faz com que registremos as dimensões da matriz resultado;
     for (int idx_ = inicio_; idx_ < fim_; idx_++) {
-        int i_ = idx_ / m2_; // recuperamos a linha correspondente ao índice;
-        int j_ = idx_ % m2_; // recuperamos a coluna correspondente ao índice;
+        int i_ = idx_ / coluna2_; // recuperamos a linha correspondente ao índice;
+        int j_ = idx_ % coluna2_; // recuperamos a coluna correspondente ao índice;
         arquivo_ << "Resultado[" << i_ << "][" << j_ << "] = " << resultado_[i_][j_] << endl; // salvamos o valor calculado;
     }
     arquivo_ << "Tempo da thread " << idThread_ << ": " << duracao_.count() << " ms" << endl; // mostramos o tempo de execução da thread;
@@ -75,20 +75,20 @@ int main(int argc_, char* argv_[]) {
         return 1; // isso faz com que o programa termine se os argumentos não forem suficientes;
     }
 
-    int n1_, m1_, n2_, m2_;
-    vector<vector<int>> M1_ = lerMatriz_(argv_[1], n1_, m1_); // neste caso lemos a primeira matriz do arquivo;
-    vector<vector<int>> M2_ = lerMatriz_(argv_[2], n2_, m2_); // neste caso lemos a segunda matriz do arquivo;
+    int linha1_, coluna1_, linha2_, coluna2_;
+    vector<vector<int>> M1_ = lerMatriz_(argv_[1], linha1_, coluna1_); // neste caso lemos a primeira matriz do arquivo;
+    vector<vector<int>> M2_ = lerMatriz_(argv_[2], linha2_, coluna2_); // neste caso lemos a segunda matriz do arquivo;
 
-    if (m1_ != n2_) {
+    if (coluna1_ != linha2_) {
         cerr << "Erro: numero de colunas de M1 deve ser igual ao numero de linhas de M2;" << endl; // regra da multiplicação de matrizes;
         return 1;
     }
 
     int P_ = stoi(argv_[3]); // neste caso convertemos o parâmetro P (número de elementos por thread);
-    int totalElementos_ = n1_ * m2_; // isso faz com que saibamos quantos elementos terá a matriz resultado;
+    int totalElementos_ = linha1_ * coluna2_; // isso faz com que saibamos quantos elementos terá a matriz resultado;
     int numThreads_ = (totalElementos_ + P_ - 1) / P_; // neste caso calculamos quantas threads são necessárias (arredondando para cima);
 
-    vector<vector<int>> resultado_(n1_, vector<int>(m2_, 0)); // cria a matriz resultado já preenchida com zeros;
+    vector<vector<int>> resultado_(linha1_, vector<int>(coluna2_, 0)); // cria a matriz resultado já preenchida com zeros;
     vector<thread> threads_; // neste caso criamos um vetor para armazenar todas as threads;
 
     cout << "Criando " << numThreads_ << " threads..." << endl; // mensagem informativa para o usuário;
@@ -99,7 +99,7 @@ int main(int argc_, char* argv_[]) {
 
         // aqui criamos uma nova thread que executa a função calcularParte_;
         threads_.emplace_back(calcularParte_, cref(M1_), cref(M2_), ref(resultado_), 
-                              n1_, m1_, m2_, inicio_, fim_, t_);
+                              linha1_, coluna1_, coluna2_, inicio_, fim_, t_);
     }
 
     for (auto &thr_ : threads_) {

@@ -9,18 +9,18 @@ using namespace std;
 using namespace std::chrono;
 
 // Função para ler matriz de arquivo
-vector<vector<int>> lerMatriz_(const string& nomeDoArquivo_, int &n_, int &m_) {
+vector<vector<int>> lerMatriz_(const string& nomeDoArquivo_, int &linha_, int &coluna_) {
     ifstream arquivo_(nomeDoArquivo_);
     if (!arquivo_.is_open()) {
         cerr << "Erro ao abrir o arquivo " << nomeDoArquivo_ << endl;
         exit(1);
     }
 
-    arquivo_ >> n_ >> m_; // isso faz com que saibamos quantas linhas e colunas a matriz possui;
-    vector<vector<int>> matriz_(n_, vector<int>(m_));
+    arquivo_ >> linha_ >> coluna_; // isso faz com que saibamos quantas linhas e colunas a matriz possui;
+    vector<vector<int>> matriz_(linha_, vector<int>(coluna_));
 
-    for (int i_ = 0; i_ < n_; i_++) {
-        for (int j_ = 0; j_ < m_; j_++) {
+    for (int i_ = 0; i_ < linha_; i_++) {
+        for (int j_ = 0; j_ < coluna_; j_++) {
             arquivo_ >> matriz_[i_][j_]; // neste caso lemos cada valor;
         }
     }
@@ -31,17 +31,17 @@ vector<vector<int>> lerMatriz_(const string& nomeDoArquivo_, int &n_, int &m_) {
 
 // Função que cada processo vai executar para calcular sua parte
 void calcularParteProcesso_(const vector<vector<int>>& M1_, const vector<vector<int>>& M2_, 
-                            int n1_, int m1_, int m2_, int inicio_, int fim_, int idProcesso_) {
+                            int linha1_, int coluna1_, int coluna2_, int inicio_, int fim_, int idProcesso_) {
 
     auto inicioTempo_ = high_resolution_clock::now(); // neste caso marcamos o início;
 
-    vector<vector<int>> resultado_(n1_, vector<int>(m2_, 0)); // neste caso criamos matriz local para este processo
+    vector<vector<int>> resultado_(linha1_, vector<int>(coluna2_, 0)); // neste caso criamos matriz local para este processo
 
     for (int idx_ = inicio_; idx_ < fim_; idx_++) {
-        int i_ = idx_ / m2_;
-        int j_ = idx_ % m2_;
+        int i_ = idx_ / coluna2_;
+        int j_ = idx_ % coluna2_;
         int soma_ = 0;
-        for (int k_ = 0; k_ < m1_; k_++) {
+        for (int k_ = 0; k_ < coluna1_; k_++) {
             soma_ += M1_[i_][k_] * M2_[k_][j_]; // isso faz com que calculemos o produto escalar
         }
         resultado_[i_][j_] = soma_;
@@ -58,10 +58,10 @@ void calcularParteProcesso_(const vector<vector<int>>& M1_, const vector<vector<
         exit(1);
     }
 
-    arquivo_ << n1_ << " " << m2_ << endl;
+    arquivo_ << linha1_ << " " << coluna2_ << endl;
     for (int idx_ = inicio_; idx_ < fim_; idx_++) {
-        int i_ = idx_ / m2_;
-        int j_ = idx_ % m2_;
+        int i_ = idx_ / coluna2_;
+        int j_ = idx_ % coluna2_;
         arquivo_ << "Resultado[" << i_ << "][" << j_ << "] = " << resultado_[i_][j_] << endl;
     }
     arquivo_ << "Tempo do processo " << idProcesso_ << ": " << duracao_.count() << " ms" << endl;
@@ -75,17 +75,17 @@ int main(int argc_, char* argv_[]) {
         return 1;
     }
 
-    int n1_, m1_, n2_, m2_;
-    vector<vector<int>> M1_ = lerMatriz_(argv_[1], n1_, m1_);
-    vector<vector<int>> M2_ = lerMatriz_(argv_[2], n2_, m2_);
+    int linha1_, coluna1_, linha2_, coluna2_;
+    vector<vector<int>> M1_ = lerMatriz_(argv_[1], linha1_, coluna1_);
+    vector<vector<int>> M2_ = lerMatriz_(argv_[2], linha2_, coluna2_);
 
-    if (m1_ != n2_) {
+    if (coluna1_ != linha2_) {
         cerr << "Erro: numero de colunas de M1 deve ser igual ao numero de linhas de M2;" << endl;
         return 1;
     }
 
     int P_ = stoi(argv_[3]);
-    int totalElementos_ = n1_ * m2_;
+    int totalElementos_ = linha1_ * coluna2_;
     int numProcessos_ = (totalElementos_ + P_ - 1) / P_; // isso faz com que cada processo tenha no máximo P elementos
 
     cout << "Criando " << numProcessos_ << " processos..." << endl;
@@ -103,7 +103,7 @@ int main(int argc_, char* argv_[]) {
             exit(1);
         } else if (pid_ == 0) {
             // processo filho
-            calcularParteProcesso_(M1_, M2_, n1_, m1_, m2_, inicio, fim, p_);
+            calcularParteProcesso_(M1_, M2_, linha1_, coluna1_, coluna2_, inicio, fim, p_);
             exit(0); // neste caso o filho termina depois de salvar seus resultados
         }
         // processo pai continua criando próximos processos
