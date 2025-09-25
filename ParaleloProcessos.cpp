@@ -1,8 +1,8 @@
-#include <iostream>
+#include <iostream> //arquivo para a multiplicação com processos;
 #include <fstream>
 #include <vector>
-#include <unistd.h>   // para fork()
-#include <sys/wait.h> // para wait()
+#include <unistd.h>   
+#include <sys/wait.h> 
 #include <chrono>
 
 using namespace std;
