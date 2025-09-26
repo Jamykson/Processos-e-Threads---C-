@@ -92,6 +92,8 @@ int main(int argc_, char* argv_[]) {
 
     cout << "Criando " << numThreads_ << " threads..." << endl; 
 
+    auto inicioTotal_ = high_resolution_clock::now();
+
     for (int t_ = 0; t_ < numThreads_; t_++) {
         int inicio_ = t_ * P_; // isso defe a posição inicial de cálculo da thread;
         int fim_ = min(inicio_ + P_, totalElementos_); // isso define a posição final sem passar do limite;
@@ -104,7 +106,11 @@ int main(int argc_, char* argv_[]) {
         thr_.join(); // isso espera cada thread terminar antes de prosseguir;
     }
 
+    auto fimTotal_ = high_resolution_clock::now();
+    duration<double, milli> duracao_ = fimTotal_ - inicioTotal_;
+
     cout << "Multiplicacao paralela com threads concluida. Resultados parciais salvos em arquivos separados." << endl; 
+    cout << "Tempo total: " << duracao_.count() << " ms (" << duracao_.count()/1000 << " s)" << endl;
 
     return 0; 
 }
