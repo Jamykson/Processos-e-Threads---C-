@@ -1,4 +1,4 @@
-#include <iostream>  // Arquivo para a multiplicação com threads;
+#include <iostream>  
 #include <fstream>   
 #include <vector>    
 #include <thread>    
@@ -8,10 +8,11 @@ using namespace std;
 using namespace std::chrono;
 
 //Essa função para lê uma matriz a partir de um arquivo;
-vector<vector<int>> lerMatriz_(const string& nomeDoArquivo_, int &linha_, int &coluna_) {
+vector<vector<int>> lendoMatriz_(const string& nomeDoArquivo_, int &linha_, int &coluna_) {
 
     ifstream arquivo_(nomeDoArquivo_); //neste caso abri o arquivo em modo de leitura;
     if (!arquivo_.is_open()) {
+
         cerr << "Houve um erro ao abrir o arquivo " << nomeDoArquivo_ << "." << endl; 
         exit(1);
     }
@@ -20,7 +21,9 @@ vector<vector<int>> lerMatriz_(const string& nomeDoArquivo_, int &linha_, int &c
     vector<vector<int>> matriz_(linha_, vector<int>(coluna_)); // neste caso é criada a matriz em memória já com o tamanho certo;
 
     for (int i_ = 0; i_ < linha_; i_++) {
+
         for (int j_ = 0; j_ < coluna_; j_++) {
+
             arquivo_ >> matriz_[i_][j_]; // isso faz com que cada valor seja lido e armazenado na posição correta;
         }
     }
@@ -35,11 +38,13 @@ void calcularParte_(const vector<vector<int>>& M1_, const vector<vector<int>>& M
     auto inicioTempo_ = high_resolution_clock::now(); // neste caso marca o início do tempo de execução da thread;
 
     for (int idx_ = inicio_; idx_ < fim_; idx_++) {
+
         int i_ = idx_ / coluna2_; // isso faz com que saibamos em qual linha e coluna da matriz resultado está;
         int j_ = idx_ % coluna2_; 
 
         int soma_ = 0;
         for (int k_ = 0; k_ < coluna1_; k_++) {
+
             soma_ += M1_[i_][k_] * M2_[k_][j_]; // isso calcula o produto escalar da linha de M1 com a coluna de M2;
         }
         resultado_[i_][j_] = soma_; // isso faz com que se armazene o valor calculado na posição correta da matriz resultado;
@@ -52,12 +57,14 @@ void calcularParte_(const vector<vector<int>>& M1_, const vector<vector<int>>& M
     string nomeArquivo_ = "MultiplicacaoThread" + to_string(idThread_) + ".txt";
     ofstream arquivo_(nomeArquivo_); 
     if (!arquivo_.is_open()) {
+
         cerr << "Houve um erro ao criar o arquivo " << nomeArquivo_ << "." << endl; 
         exit(1);
     }
 
     arquivo_ << linha1_ << " " << coluna2_ << endl; //isso faz com que as dimensões sejam salvas no arquivo;
     for (int idx_ = inicio_; idx_ < fim_; idx_++) {
+
         int i_ = idx_ / coluna2_; // recuperamos a linha e a coluna que são correspondentes aos índices;
         int j_ = idx_ % coluna2_; 
         arquivo_ << "Resultado[" << i_ << "][" << j_ << "] = " << resultado_[i_][j_] << endl; // isto salva o valor calculado;
@@ -70,15 +77,17 @@ void calcularParte_(const vector<vector<int>>& M1_, const vector<vector<int>>& M
 int main(int argc_, char* argv_[]) {
 
     if (argc_ != 4) {
+
         cerr << "Uso: " << argv_[0] << " arquivo1.txt arquivo2.txt I(inteiro)" << endl; // isto mostra a forma correta de uso do programa;
         return 1; 
     }
 
     int linha1_, coluna1_, linha2_, coluna2_;
-    vector<vector<int>> M1_ = lerMatriz_(argv_[1], linha1_, coluna1_); // neste caso lemos a primeira e a segunda matriz do arquivo;
-    vector<vector<int>> M2_ = lerMatriz_(argv_[2], linha2_, coluna2_); 
+    vector<vector<int>> M1_ = lendoMatriz_(argv_[1], linha1_, coluna1_); // neste caso lemos a primeira e a segunda matriz do arquivo;
+    vector<vector<int>> M2_ = lendoMatriz_(argv_[2], linha2_, coluna2_);
 
     if (coluna1_ != linha2_) {
+
         cerr << "Houve um erro: o numero de colunas de M1 deve ser igual ao numero de linhas de M2;" << endl; 
         return 1;
     }
@@ -95,6 +104,7 @@ int main(int argc_, char* argv_[]) {
     auto inicioTotal_ = high_resolution_clock::now();
 
     for (int t_ = 0; t_ < numThreads_; t_++) {
+
         int inicio_ = t_ * P_; // isso defe a posição inicial de cálculo da thread;
         int fim_ = min(inicio_ + P_, totalElementos_); // isso define a posição final sem passar do limite;
 
@@ -103,13 +113,14 @@ int main(int argc_, char* argv_[]) {
     }
 
     for (auto &thr_ : threads_) {
+
         thr_.join(); // isso espera cada thread terminar antes de prosseguir;
     }
 
     auto fimTotal_ = high_resolution_clock::now();
     duration<double, milli> duracao_ = fimTotal_ - inicioTotal_;
 
-    cout << "Multiplicacao paralela com threads concluida. Resultados parciais salvos em arquivos separados." << endl; 
+    cout << "Multiplicacao paralela com threads concluida." << endl; 
     cout << "Tempo total: " << duracao_.count() << " ms (" << duracao_.count()/1000 << " s)" << endl;
 
     return 0; 

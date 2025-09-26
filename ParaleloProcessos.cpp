@@ -1,4 +1,4 @@
-#include <iostream> //arquivo para a multiplicação com processos;
+#include <iostream> 
 #include <fstream>
 #include <vector>
 #include <unistd.h>   
@@ -9,10 +9,11 @@ using namespace std;
 using namespace std::chrono;
 
 //essa função lê matriz de arquivo
-vector<vector<int>> lerMatriz_(const string& nomeDoArquivo_, int &linha_, int &coluna_) {
+vector<vector<int>> lendoMatriz_(const string& nomeDoArquivo_, int &linha_, int &coluna_) {
 
     ifstream arquivo_(nomeDoArquivo_);
     if (!arquivo_.is_open()) {
+
         cerr << "Houve um erro ao abrir o arquivo " << nomeDoArquivo_ << "." << endl;
         exit(1);
     }
@@ -21,7 +22,9 @@ vector<vector<int>> lerMatriz_(const string& nomeDoArquivo_, int &linha_, int &c
     vector<vector<int>> matriz_(linha_, vector<int>(coluna_));
 
     for (int i_ = 0; i_ < linha_; i_++) {
+
         for (int j_ = 0; j_ < coluna_; j_++) {
+
             arquivo_ >> matriz_[i_][j_];    //neste caso preenchemos a matriz com os valores do arquivo;
         }
     }
@@ -38,10 +41,12 @@ void calcularParteProcesso_(const vector<vector<int>>& M1_, const vector<vector<
     vector<vector<int>> resultado_(linha1_, vector<int>(coluna2_, 0));  //neste caso criamos matriz local para este processo;
 
     for (int idx_ = inicio_; idx_ < fim_; idx_++) {
+
         int i_ = idx_ / coluna2_;   //converter os índices lineares em índices de linha e coluna;
         int j_ = idx_ % coluna2_;
         int soma_ = 0;
         for (int k_ = 0; k_ < coluna1_; k_++) {
+
             soma_ += M1_[i_][k_] * M2_[k_][j_]; //isso faz com que calculemos o produto escalar;
         }
         resultado_[i_][j_] = soma_; //isso salva o valor calculado na matriz resultado;
@@ -54,12 +59,14 @@ void calcularParteProcesso_(const vector<vector<int>>& M1_, const vector<vector<
     string nomeArquivo_ = "ResultadoProcesso" + to_string(idProcesso_) + ".txt";
     ofstream arquivo_(nomeArquivo_);
     if (!arquivo_.is_open()) {
+
         cerr << "Houve um erro ao criar o arquivo " << nomeArquivo_ << "." << endl;
         exit(1);
     }
 
     arquivo_ << linha1_ << " " << coluna2_ << endl; //isso faz com que saibamos quantas linhas e colunas a matriz possui;
     for (int idx_ = inicio_; idx_ < fim_; idx_++) {
+
         int i_ = idx_ / coluna2_;   
         int j_ = idx_ % coluna2_;
         arquivo_ << "Resultado[" << i_ << "][" << j_ << "] = " << resultado_[i_][j_] << endl;   //isso registra no arquivo cada valor calculado;
@@ -70,16 +77,19 @@ void calcularParteProcesso_(const vector<vector<int>>& M1_, const vector<vector<
 }
 
 int main(int argc_, char* argv_[]) {
+
     if (argc_ != 4) {
+
         cerr << "Uso: " << argv_[0] << " M1.txt M2.txt P" << endl;
         return 1;
     }
 
     int linha1_, coluna1_, linha2_, coluna2_;
-    vector<vector<int>> M1_ = lerMatriz_(argv_[1], linha1_, coluna1_);  //isso faz a leitura das duas matrizes;
-    vector<vector<int>> M2_ = lerMatriz_(argv_[2], linha2_, coluna2_);
+    vector<vector<int>> M1_ = lendoMatriz_(argv_[1], linha1_, coluna1_);  //isso faz a leitura das duas matrizes;
+    vector<vector<int>> M2_ = lendoMatriz_(argv_[2], linha2_, coluna2_);
 
     if (coluna1_ != linha2_) {
+
         cerr << "Houve um erro: o numero de colunas de M1 deve ser igual ao numero de linhas de M2;" << endl;
         return 1;
     }
@@ -93,12 +103,14 @@ int main(int argc_, char* argv_[]) {
     auto inicio_ = high_resolution_clock::now();    //isso marca o início do tempo total;
 
     for (int p_ = 0; p_ < numProcessos_; p_++) {
+
         int inicio = p_ * P_;
         int fim = min(inicio + P_, totalElementos_);
 
         pid_t pid_ = fork();    //neste caso criamos um novo processo;
 
         if (pid_ < 0) {
+
             cerr << "Houve um erro ao criar processo " << p_ << endl;
             exit(1);
         } else if (pid_ == 0) {
@@ -111,6 +123,7 @@ int main(int argc_, char* argv_[]) {
 
     //nesse caso o processo pai espera todos os filhos terminarem;
     for (int p_ = 0; p_ < numProcessos_; p_++) {
+        
         wait(NULL); //isso faz com que o pai espere cada filho terminar;
     }
 

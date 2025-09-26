@@ -5,4 +5,4 @@ Resultado[3][0] = 74
 Resultado[3][1] = 81
 Resultado[3][2] = 73
 Resultado[3][3] = 166
-Tempo do processo 1: 0.02692 ms
+Tempo do processo 1: 0.022001 ms
