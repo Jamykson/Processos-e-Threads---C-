@@ -1,4 +1,0 @@
-4 4
-Resultado[0][2] = 87
-Resultado[0][3] = 196
-Tempo da thread 1: 0.000371 ms
