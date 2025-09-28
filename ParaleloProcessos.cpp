@@ -1,8 +1,7 @@
-#include <iostream> 
+#include <iostream>
 #include <fstream>
 #include <vector>
-#include <unistd.h>   
-#include <sys/wait.h> 
+#include <thread> 
 #include <chrono>
 
 using namespace std;
@@ -67,7 +66,7 @@ void calcularParteProcesso_(const vector<vector<int>>& M1_, const vector<vector<
     arquivo_ << linha1_ << " " << coluna2_ << endl; //isso faz com que saibamos quantas linhas e colunas a matriz possui;
     for (int idx_ = inicio_; idx_ < fim_; idx_++) {
 
-        int i_ = idx_ / coluna2_;   
+        int i_ = idx_ / coluna2_;
         int j_ = idx_ % coluna2_;
         arquivo_ << "Resultado[" << i_ << "][" << j_ << "] = " << resultado_[i_][j_] << endl;   //isso registra no arquivo cada valor calculado;
     }
@@ -102,29 +101,21 @@ int main(int argc_, char* argv_[]) {
 
     auto inicio_ = high_resolution_clock::now();    //isso marca o início do tempo total;
 
+    vector<thread> threads; // Vetor para armazenar as threads criadas
+
     for (int p_ = 0; p_ < numProcessos_; p_++) {
 
         int inicio = p_ * P_;
         int fim = min(inicio + P_, totalElementos_);
 
-        pid_t pid_ = fork();    //neste caso criamos um novo processo;
-
-        if (pid_ < 0) {
-
-            cerr << "Houve um erro ao criar processo " << p_ << endl;
-            exit(1);
-        } else if (pid_ == 0) {
-            //neste caso o código é executado pelo processo filho;
-            calcularParteProcesso_(M1_, M2_, linha1_, coluna1_, coluna2_, inicio, fim, p_);
-            exit(0); // neste caso o filho termina depois de salvar seus resultados;
-        }
-        //neste caso o processo pai continua criando próximos processos;
+        //neste caso criamos um novo processo; (Agora uma nova thread)
+        threads.emplace_back(calcularParteProcesso_, ref(M1_), ref(M2_), linha1_, coluna1_, coluna2_, inicio, fim, p_);
     }
 
-    //nesse caso o processo pai espera todos os filhos terminarem;
-    for (int p_ = 0; p_ < numProcessos_; p_++) {
+    //nesse caso o processo pai espera todos os filhos terminarem; (Agora a thread principal espera as outras)
+    for (auto& th : threads) {
         
-        wait(NULL); //isso faz com que o pai espere cada filho terminar;
+        th.join(); //isso faz com que o pai espere cada filho terminar;
     }
 
     auto fim_ = high_resolution_clock::now();
