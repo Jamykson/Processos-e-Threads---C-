@@ -5,24 +5,23 @@
 
 using namespace std;
 
-//Essa função faz com que seja gerada uma matriz aleatória, e salva em arquivo;
+//essa função faz com que seja gerada uma matriz aleatória, e salva em arquivo;
 void gerandoMatrizAleatoria_(int linha_, int coluna_, const string& nomeDoArquivo_) {
     
     ofstream arquivo_(nomeDoArquivo_);
     if (!arquivo_.is_open()) {
         
-        cerr << "Erro ao abrir o arquivo " << nomeDoArquivo_ << endl;   //neste caso tratamos erro de abertura;
+        cerr << "Houve um erro ao abrir o arquivo " << nomeDoArquivo_ <<"."<< endl;   //no casso de erro de abertura;
         exit(1);
     }
 
     arquivo_ << linha_ << " " << coluna_ << endl;   //isso faz com que as dimensões sejam lidas e armazenadas em linha_ e coluna_; 
     
-    for (int i_ = 0; i_ < linha_; i_++) {   //isso faz com que cada valor seja gerado e armazenado na posição correta;   
-        
+    for (int i_ = 0; i_ < linha_; i_++) {  
         for (int j_ = 0; j_ < coluna_; j_++) {
 
             int valor_ = rand() % 10; 
-            arquivo_ << valor_ << "\t"; //isso insere o valor aleatório no arquivo com um tab(/t) para separar;;
+            arquivo_ << valor_ << "\t"; //insere o valor aleatório no arquivo com um tab(/t) para separar;;
         }
         arquivo_ << endl;
     }
@@ -41,7 +40,7 @@ int main(int argc_, char* argv_[]) {
 
     srand(time(0)); 
 
-    int linha1_ = atoi(argv_[1]); // isso converte os argumentos string para int;
+    int linha1_ = atoi(argv_[1]); //converte os argumentos string para int;
     int coluna1_ = atoi(argv_[2]);
     int linha2_ = atoi(argv_[3]);
     int coluna2_ = atoi(argv_[4]);
