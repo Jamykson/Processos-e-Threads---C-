@@ -14,10 +14,9 @@ void gerandoMatrizAleatoria_(int linha_, int coluna_, const string& nomeDoArquiv
         cerr << "Houve um erro ao abrir o arquivo " << nomeDoArquivo_ <<"."<< endl;   //no casso de erro de abertura;
         exit(1);
     }
-
     arquivo_ << linha_ << " " << coluna_ << endl;   //isso faz com que as dimensões sejam lidas e armazenadas em linha_ e coluna_; 
-    
     for (int i_ = 0; i_ < linha_; i_++) {  
+
         for (int j_ = 0; j_ < coluna_; j_++) {
 
             int valor_ = rand() % 10; 
@@ -25,7 +24,6 @@ void gerandoMatrizAleatoria_(int linha_, int coluna_, const string& nomeDoArquiv
         }
         arquivo_ << endl;
     }
-
     arquivo_.close(); 
     cout << "A matriz foi salva em " << nomeDoArquivo_ << "." << endl; 
 }
@@ -44,13 +42,11 @@ int main(int argc_, char* argv_[]) {
     int coluna1_ = atoi(argv_[2]);
     int linha2_ = atoi(argv_[3]);
     int coluna2_ = atoi(argv_[4]);
-
     if (coluna1_ != linha2_) {
 
         cerr << "Erro: A multiplicacao apenas é possivel se m1 for igual a n2;" << endl;
         return 1; 
     }
-
     gerandoMatrizAleatoria_(linha1_, coluna1_, "Matriz1.txt"); 
     gerandoMatrizAleatoria_(linha2_, coluna2_, "Matriz2.txt"); 
 

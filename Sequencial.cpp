@@ -15,7 +15,6 @@ vector<vector<int>> lerMatriz_(const string& nomeDoArquivo_, int &linha_, int &c
         cerr << "Houve um erro ao abrir o arquivo " << nomeDoArquivo_ << "."<< endl; 
         exit(1);
     }
-
     arquivo_ >> linha_ >> coluna_;  //isso faz com que as dimensões sejam lidas e armazenadas em linha_ e coluna_; 
     vector<vector<int>> matriz_(linha_, vector<int>(coluna_));
     for (int i_ = 0; i_ < linha_; i_++) {
@@ -31,7 +30,6 @@ vector<vector<int>> lerMatriz_(const string& nomeDoArquivo_, int &linha_, int &c
 
 //essa função multiplica duas matrizes;
 vector<vector<int>> multiplicarMatrizes_(const vector<vector<int>>& PrimeiraMatriz_, const vector<vector<int>>& SegundaMatriz_, int linha1_, int coluna1_, int coluna2_) {
-  
     vector<vector<int>> resultado_(linha1_, vector<int>(coluna2_, 0)); 
     for (int i_ = 0; i_ < linha1_; i_++) {
 
